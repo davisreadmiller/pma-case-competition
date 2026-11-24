@@ -27,6 +27,25 @@ const AuthPage = () => {
     }
   }, [searchParams]);
 
+  const signInAsDemo = async () => {
+    setLoading(true);
+    const { error } = await db.auth.signInWithPassword({
+      email: "member@byu.edu",
+      password: "demo1234",
+    });
+    if (error) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    if (searchParams.get("demo") === "1") {
+      signInAsDemo();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
+
   useEffect(() => {
     // Check if user is already logged in - always take them to resources
     const { data: { subscription } } = db.auth.onAuthStateChange((_event, session) => {
@@ -128,6 +147,18 @@ const AuthPage = () => {
           <div className="mb-4">
             <DemoAuthNote />
           </div>
+          {!isSignUp && (
+            <>
+              <Button type="button" className="w-full" onClick={signInAsDemo} disabled={loading}>
+                Continue as demo member
+              </Button>
+              <div className="my-4 flex items-center gap-3 text-xs text-muted-foreground">
+                <span className="h-px flex-1 bg-border" />
+                or sign in
+                <span className="h-px flex-1 bg-border" />
+              </div>
+            </>
+          )}
           <form onSubmit={isSignUp ? handleSignUp : handleSignIn} className="space-y-4">
             {isSignUp && (
               <>
